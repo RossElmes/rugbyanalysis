@@ -41,18 +41,7 @@ timeline <-function(df,set_piece = "Lineout",group_var){
     ungroup()%>%
     mutate_if(.,is.factor, as.character)
 
-  plot <- timeline_df%>%
-    ggplot(.,aes(x=start,y=0))+
-    geom_hline(yintercept=0,color = "black", size=0.3)+
-    geom_segment(aes(y=pos,yend=yend,xend=start), color='black',size=0.3)+
-    geom_point(aes_(x=quo(start),y=quo(pos),colour =group_var),size=5)+
-    annotate("text", x = max(timeline_df$end)-10, y =4 , label = paste0(unique(t1$code)))+
-    annotate("text", x = max(timeline_df$end)-10, y =-4 , label = paste0(unique(t2$code)))+
-    #annotate("text", x = max(timeline_df$end)-10, y =4 , label = paste0(unique(t1$code)," ",unique(t1$prop)))+
-    #annotate("text", x = max(timeline_df$end)-10, y =-4 , label = paste0(unique(t2$code)," ",unique(t2$prop)))+
-    #annotate("rect", xmin=1, xmax=20, ymin=0.015, ymax=1, alpha=0.2, fill="green")+
-    #annotate("rect", xmin=21, xmax=40, ymin=-0.015, ymax=-1, alpha=0.2, fill="red")+
-    labs(title = paste0(set_piece," Timeline"))+
+ theme_timeline <-  theme_classic()+
     theme(axis.line.y=element_blank(),
           axis.text.y=element_blank(),
           axis.title.x=element_blank(),
@@ -62,13 +51,21 @@ timeline <-function(df,set_piece = "Lineout",group_var){
           axis.ticks.x =element_blank(),
           axis.line.x =element_blank(),
           legend.position= "bottom",
-          plot.title = element_text( size = 14)
-    )
+          plot.title = element_text( size = 14))
 
-  plot
+  timeline_plot = timeline_df%>%
+    ggplot(.,aes(x=start,y=0))+
+    geom_hline(yintercept=0,color = "black", size=0.3)+
+    geom_segment(aes(y=pos,yend=yend,xend=start), color='black',size=0.3)+
+    geom_point(aes_(x=quo(start),y=quo(pos),colour =group_var),size=5)+
+    annotate("text", x = max(timeline_df$end)-10, y =4 , label = paste0(unique(t1$code)))+
+    annotate("text", x = max(timeline_df$end)-10, y =-4 , label = paste0(unique(t2$code)))+
+    labs(title = paste0(set_piece," Timeline"))
 
+  timeline_plot <- timeline_plot+theme_timeline
 
-
-  return(list(t1,t2,plot))
+  invisible(list(t1,t2,timeline_plot))
 
 }
+
+
