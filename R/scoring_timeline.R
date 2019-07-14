@@ -1,7 +1,7 @@
-scoring_timeline <- function(df,...){
+scoring_timeline <- function(df,set_piece = "Possession",...){
 
-name = names(df)
-index = grep("Possession",name)
+nme = names(df)
+index = grep(set_piece,nme)
 
 df <- df[index]%>%bind_rows(.)
 
