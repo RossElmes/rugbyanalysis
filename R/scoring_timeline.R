@@ -5,12 +5,15 @@ index = grep(set_piece,nme)
 
 df <- df[index]%>%bind_rows(.)
 
+cols_names = c("start","end","code")
+
 df <- df%>%
-  select(-one_of(cols))%>%
+  select(-one_of(cols_names))%>%
   map_df(~sapply(strsplit(as.character(.), "- "), tail, 1))%>%
-  bind_cols(df%>%select(id,one_of(cols)),.)%>%
-  select(-id1)%>%
-  mutate(bip.time = as.numeric(end) - as.numeric(start))%>%
+  bind_cols(df[,cols_names],.)%>%
+  mutate(bip.time = as.numeric(end) - as.numeric(start),
+         start = as.numeric(start),
+         end = as.numeric(end))%>%
   arrange(end)
 
 df <- df%>%
@@ -42,7 +45,7 @@ timeline_plot <-df%>%
     #geom_text(aes(x=end,y=cum_score,label = cum_score))+
     geom_hline(yintercept=0,color = "black", size=0.3)+
     annotate("text", x = max(df$end)-10, y = max(df$cum_score)+5, label = paste0(unique(df$code)[1]))+
-    annotate("text", x = max(df$end)-10, y = -max(df$cum_score)-5 , label = paste0(unique(df$code)[2]))+
+    annotate("text", x = max(df$end)-10, y = min(df$cum_score)-5 , label = paste0(unique(df$code)[2]))+
     scale_colour_manual(name = element_blank(),
                         ,values = alpha(c("green4", "red4"), .8),
                         labels = c("Team A","Team B"))+
