@@ -24,3 +24,7 @@ load_xml<- function(direc = rstudioapi::selectDirectory()){
 
 }
 
+library(rugbyanalysis)
+
+rugbyanalysis::load_xml()
+
