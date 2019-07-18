@@ -23,8 +23,3 @@ load_xml<- function(direc = rstudioapi::selectDirectory()){
   invisible(results)
 
 }
-
-library(rugbyanalysis)
-
-rugbyanalysis::load_xml()
-
