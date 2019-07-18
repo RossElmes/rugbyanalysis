@@ -1,36 +1,52 @@
-overview_set_piece <-function(df){
+overview_set_piece <-function(df,...){
 
-df <- data$raw_data
+df = df$raw_data
+
+overview = list()
+
+for(i in seq(1,max(as.numeric(df$GameNumber)))){
 
 set_piece = list()
 
-## Score Table ##
-set_piece[["Score"]] <- df%>%
-                      filter(code %like% "Possession")%>%
-                      remove_empty("cols")%>%
-                      group_by(Opp02)%>%
-                      summarise(Points = sum(as.numeric(Score)))%>%
-                      mutate(Group = "Score")%>%
-                      spread(.,key = Opp02,value = Points)%>%
-                      select(3,1,2)%>%
-                      mutate_all(.,as.character)
+  try({
 
+    ## Score Table ##
+    set_piece[["Score"]] <-
+      df%>%
+      filter(code %like% "Possession",
+             GameNumber == i)%>%
+      remove_empty("cols")%>%
+      group_by(Opp02)%>%
+      summarise(Points = sum(as.numeric(Score)))%>%
+      mutate(Group = "Score")%>%
+      spread(.,key = Opp02,value = Points)%>%
+      select(3,1,2)%>%
+      mutate_all(.,as.character)
+
+  },silent = TRUE)
+
+  try({
 ##Trys##
-set_piece[["Trys"]] = df%>%
-                    filter(code %like% "Possession",
-                           P02 %like% "Try")%>%
-                      remove_empty("cols")%>%
-                      group_by(Opp02)%>%
-                      summarise(Count = n())%>%
-                      mutate(Group = "Trys")%>%
-                      spread(.,key = Opp02,value = Count)%>%
-                      select(3,1,2)%>%
-                      mutate_all(.,as.character)
+set_piece[["Trys"]] <-
+  df%>%
+  filter(code %like% "Possession",
+           P02 %like% "Try",
+           GameNumber == i)%>%
+    remove_empty("cols")%>%
+    group_by(Opp02)%>%
+    summarise(Count = n())%>%
+    mutate(Group = "Trys")%>%
+    spread(.,key = Opp02,value = Count)%>%
+    select(3,1,2)%>%
+    mutate_all(.,as.character)
+},silent = TRUE)
 
+  try({
 ##Conversions##
 set_piece[["Conversions"]] = df%>%
                             filter(code %like% "Possession",
-                                   P02 %like% "Con Scored")%>%
+                                   P02 %like% "Con Scored",
+                                   GameNumber == i)%>%
                             remove_empty("cols")%>%
                             group_by(Opp02)%>%
                             summarise(Count = n())%>%
@@ -38,11 +54,14 @@ set_piece[["Conversions"]] = df%>%
                             spread(.,key = Opp02,value = Count)%>%
                             select(3,1,2)%>%
                             mutate_all(.,as.character)
+},silent = TRUE)
 
+  try({
 ##Penalty Drop Goal##
 set_piece[["PDG"]] = df%>%
                     filter(code %like% "Possession",
-                           P02 %like% "Penalty Scored")%>%
+                           P02 %like% "Penalty Scored",
+                           GameNumber == i)%>%
                     remove_empty("cols")%>%
                     group_by(Opp02)%>%
                     summarise(Count = n())%>%
@@ -50,12 +69,14 @@ set_piece[["PDG"]] = df%>%
                     spread(.,key = Opp02,value = Count)%>%
                     select(3,1,2)%>%
                     mutate_all(.,as.character)
+},silent = TRUE)
 
-
+  try({
 ## Lineout ##
 set_piece[["Lineout"]] = df%>%
                         filter(code %like% "Lineout",
-                               !code %like% "Attack")%>%
+                               !code %like% "Attack",
+                               GameNumber == i)%>%
                         remove_empty("cols")%>%
                         group_by(Opp02,L05)%>%
                         summarise(Count = n())%>%
@@ -68,10 +89,14 @@ set_piece[["Lineout"]] = df%>%
                         select(3,1,2)%>%
                         mutate_all(.,as.character)
 
+},silent = TRUE)
+
+  try({
 ##Scrum##
 set_piece[["Scrum"]] = df%>%
                       filter(code %like% "Scrum",
-                             !code %like% "Attack")%>%
+                             !code %like% "Attack",
+                             GameNumber == i)%>%
                       remove_empty("cols")%>%
                       group_by(Opp02,S03)%>%
                       summarise(Count = n())%>%
@@ -83,10 +108,13 @@ set_piece[["Scrum"]] = df%>%
                     spread(.,key = Opp02,value = Proportion)%>%
                     select(3,1,2)%>%
                     mutate_all(.,as.character)
+},silent = TRUE)
 
+  try({
 ##Turnover##
 set_piece[["Turnover"]] =df%>%
-                        filter(code %like% "Turnover")%>%
+                        filter(code %like% "Turnover",
+                               GameNumber == i)%>%
                         remove_empty("cols")%>%
                         group_by(Opp02)%>%
                         summarise(Count = n())%>%
@@ -94,10 +122,13 @@ set_piece[["Turnover"]] =df%>%
                         spread(.,key = Opp02,value = Count)%>%
                         select(3,1,2)%>%
                         mutate_all(.,as.character)
+},silent = TRUE)
 
+  try({
 ##Penalties##
 set_piece[["Penalties"]] = df%>%
-                          filter(code %like% "Penalties")%>%
+                          filter(code %like% "Penalties",
+                                 GameNumber == i)%>%
                           remove_empty("cols")%>%
                           group_by(Opp02)%>%
                           summarise(Count = n())%>%
@@ -106,9 +137,17 @@ set_piece[["Penalties"]] = df%>%
                           select(3,1,2)%>%
                           mutate_all(.,as.character)
 
+},silent = TRUE)
 
-results <-set_piece%>%bind_rows(.)%>%
-          select(1," " = Group,3)
 
+overview[[i]] <-
+  set_piece%>%bind_rows(.)%>%
+  select(1," " = Group,3)
+
+  }
+invisible(overview)
 
 }
+
+
+
