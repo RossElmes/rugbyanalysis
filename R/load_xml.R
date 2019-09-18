@@ -6,7 +6,7 @@ load_xml<- function(){
 
   if(length(db) == 0){
 
-    df <- furrr::future_map_dfr(paste0(direc,"/",files), ~ sportscoder::read_sportscode_xml(.))
+    df <- future_map_dfr(paste0(direc,"/",files), ~ sportscoder::read_sportscode_xml(.))
 
   }
 
@@ -28,7 +28,7 @@ load_xml<- function(){
 
   if(length(index) > 0){
 
-    df <- furrr::future_map_dfr(paste0(direc,"/",files[index]), ~ sportscoder::read_sportscode_xml(.))
+    df <- future_map_dfr(paste0(direc,"/",files[index]), ~ sportscoder::read_sportscode_xml(.))
 
   }else {
 
@@ -53,6 +53,7 @@ load_xml<- function(){
       map(.,function(x)remove_empty(x,"cols"))
 
     results <- list(raw_data =df,grouped_data =code_data)
+
     invisible(results)
 
   }
